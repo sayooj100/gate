@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-10-18T22:00:00Z",
+  "categories": [
+    {
+      "code": "GA",
+      "name": "General Aptitude",
+      "type": "shared",
+      "description": "General Aptitude questions across all GATE disciplines",
+      "image": "/generalaptitude.webp",
+      "r2_image_path": "images/branches/GA.webp",
+      "is_always_first": true,
+      "is_aggregated": true,
+      "enabled": true
+    },
+    {
+      "code": "BM",
+      "name": "Biomedical Engineering",
+      "type": "engineering",
+      "description": "Biomedical Engineering GATE preparation",
+      "image": "/biomedical.webp",
+      "r2_image_path": "images/branches/BM.webp",
+      "data_file": "questions/BM.json",
+      "is_always_first": false,
+      "is_aggregated": false,
+      "enabled": true
+    }
+  ]
+}

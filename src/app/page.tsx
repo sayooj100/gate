@@ -1,69 +1,77 @@
-import Image from "next/image";
+import Image from 'next/image';
+import Link from 'next/link';
+import { getMasterCatalogue } from '@/lib/bmData';
 
-export default function Home() {
+export default async function HomePage() {
+  const categories = await getMasterCatalogue();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex flex-col flex-1 w-full max-w-4xl mx-auto px-4 py-8">
+      {/* Top Left-Aligned Hero Section */}
+      <section className="text-left w-full">
+        {/* Headline */}
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-black dark:text-white uppercase">
+          ACE YOUR GATE.
+        </h1>
+
+        {/* Subtext */}
+        <p className="mt-2 text-xs sm:text-sm text-black dark:text-white max-w-xl leading-normal font-normal">
+          Practise previous year questions, master every topic, and challenge yourself with mock tests — all in one place.
+        </p>
+
+        {/* Indicators in a single row filled solid */}
+        <div className="mt-4 flex flex-row items-center gap-2 sm:gap-3 text-[11px] sm:text-xs">
+          <span className="px-2.5 py-1 rounded bg-black dark:bg-white text-white dark:text-black font-semibold whitespace-nowrap shadow-xs">
+            100% Free
+          </span>
+          <span className="text-black dark:text-white font-bold">•</span>
+          <span className="px-2.5 py-1 rounded bg-black dark:bg-white text-white dark:text-black font-semibold whitespace-nowrap shadow-xs">
+            Zero Ads
+          </span>
+          <span className="text-black dark:text-white font-bold">•</span>
+          <span className="px-2.5 py-1 rounded bg-black dark:bg-white text-white dark:text-black font-semibold whitespace-nowrap shadow-xs">
+            Focused Learning
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Dynamic Category Selection Section driven by master.json catalogue */}
+      <section className="mt-8 pt-6 border-t border-black dark:border-white">
+        <h2 className="text-xs sm:text-sm font-bold tracking-wider text-black dark:text-white uppercase mb-4">
+          Select Your Branch
+        </h2>
+
+        {/* 2 columns per row with shadow on branch boxes */}
+        <div className="grid grid-cols-2 gap-4 max-w-md">
+          {categories.map((cat) => (
+            <Link
+              key={cat.code}
+              href={`/branches/${cat.code.toLowerCase()}`}
+              className="group flex flex-col items-center p-3 rounded-xl border border-black dark:border-white bg-white dark:bg-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] transition-all"
+            >
+              {/* Square Image */}
+              <div className="relative w-full aspect-square rounded-lg border border-black dark:border-white overflow-hidden bg-white dark:bg-black">
+                <Image
+                  src={cat.image}
+                  alt={cat.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 180px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                  priority={cat.code === 'GA' || cat.code === 'BM'}
+                />
+              </div>
+
+              {/* Name of branch below */}
+              <span className="mt-2.5 text-xs sm:text-sm font-bold text-center text-black dark:text-white line-clamp-2">
+                {cat.name}
+              </span>
+              <span className="text-[10px] text-black dark:text-white font-semibold">
+                ({cat.code})
+              </span>
+            </Link>
+          ))}
         </div>
-      </main>
+      </section>
     </div>
   );
 }
