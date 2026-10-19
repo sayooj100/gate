@@ -91,6 +91,8 @@ async function main() {
     { local: path.join(process.cwd(), 'data', 'images', 'branches', 'BM.webp'), key: 'images/branches/BM.webp' },
     { local: path.join(process.cwd(), 'data', 'images', 'branches', 'GA.webp'), key: 'images/branches/GA.webp' },
     { local: path.join(process.cwd(), 'data', 'images', 'error.webp'), key: 'images/error.webp' },
+    { local: path.join(process.cwd(), 'data', 'contribution.json'), key: 'config/contribution.json' },
+    { local: path.join(process.cwd(), 'data', 'contribution-popup.json'), key: 'config/contribution-popup.json' },
   ];
 
   // Also check if any question images exist in data/images/questions

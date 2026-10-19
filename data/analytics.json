@@ -1,0 +1,17 @@
+{
+  "counts": {
+    "total_sessions": 2,
+    "total_questions_solved": 3,
+    "total_question_attempts": 6,
+    "contribution_clicks": 2,
+    "email_submissions": 0
+  },
+  "unique_visitors": [
+    "test_vis_1",
+    "v_8aph36xto1mverz028"
+  ],
+  "active_sessions": [
+    "test_sess_1",
+    "s_8ikg8ol9gomverz028"
+  ]
+}

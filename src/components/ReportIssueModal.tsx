@@ -36,31 +36,41 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
     setErrorMessage('');
     setIsSubmitting(true);
 
-    // Prepare report payload ready for future backend integration
     const reportPayload = {
       question_id: question.question_id,
+      branch: question.paper_code || 'BM',
       year: question.year,
-      section_id: question.section_id,
       section_name: sectionName || question.section_name,
-      subtopic_id: question.topic_id,
       subtopic_name: subtopicName || question.topic_name,
-      issue_description: description.trim(),
-      timestamp: new Date().toISOString(),
+      reason: 'Question Issue',
+      message: description.trim(),
     };
 
-    // Stored in session log or ready for future endpoint
-    console.log('[Issue Report Queued]', reportPayload);
-
-    // Simulate completion without falsely claiming a database delivery
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-        setDescription('');
-        onClose();
-      }, 1500);
-    }, 400);
+    fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reportPayload),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to submit report');
+        }
+        return res.json();
+      })
+      .then(() => {
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        setTimeout(() => {
+          setIsSuccess(false);
+          setDescription('');
+          onClose();
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error('Error submitting report:', err);
+        setIsSubmitting(false);
+        setErrorMessage('Failed to submit report. Please try again.');
+      });
   };
 
   return (

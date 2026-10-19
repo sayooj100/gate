@@ -6,6 +6,8 @@ import { BMQuestion } from '@/lib/bmData';
 import { MathRenderer } from './MathRenderer';
 import { ReportIssueModal } from './ReportIssueModal';
 import { QuestionImage } from './QuestionImage';
+import { trackEvent } from '@/lib/analytics';
+import { useQuestionPractice } from './ContributionPopup';
 
 interface QuestionCardProps {
   question: BMQuestion;
@@ -20,6 +22,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   sectionName,
   subtopicName,
 }) => {
+  const practiceCtx = useQuestionPractice();
   // Option selection state
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
   // Whether user checked / submitted answer
@@ -99,13 +102,43 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   };
 
   const handleCheckAnswer = () => {
+    let shouldCheck = false;
+    let evalCorrect = false;
+
     if (isNAT) {
       if (natAnswer.trim().length > 0 && !isChecked) {
-        setIsChecked(true);
+        shouldCheck = true;
+        evalCorrect = isNatCorrect;
       }
     } else {
       if (selectedOptions.length > 0 && !isChecked) {
-        setIsChecked(true);
+        shouldCheck = true;
+        evalCorrect =
+          correctOptionIndices.length > 0 &&
+          selectedOptions.length === correctOptionIndices.length &&
+          correctOptionIndices.every((idx) => selectedOptions.includes(idx));
+      }
+    }
+
+    if (shouldCheck) {
+      setIsChecked(true);
+      // Track attempt
+      trackEvent('question_attempt', {
+        question_id: question.question_id,
+        year: question.year,
+        paper_code: question.paper_code,
+      });
+
+      // Track solved if correct
+      if (evalCorrect) {
+        trackEvent('question_solved', {
+          question_id: question.question_id,
+        });
+      }
+
+      // Increment completed questions count for contribution popup trigger
+      if (practiceCtx?.incrementCompletedQuestions) {
+        practiceCtx.incrementCompletedQuestions();
       }
     }
   };

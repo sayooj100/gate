@@ -1,0 +1,15 @@
+{
+  "heading": "Support OpenMentor Education",
+  "subtitle": "Keeping GATE preparation 100% free forever.",
+  "upi_id": "openmentor@okaxis",
+  "qr_image_url": "/openmentor-logo.webp",
+  "supporters": [
+    {
+      "id": "sup1",
+      "name": "Rohan Sharma",
+      "comment": "Amazing platform!",
+      "amount": 500,
+      "date": "2026-10-19T00:00:00.000Z"
+    }
+  ]
+}
