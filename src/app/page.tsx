@@ -2,6 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getMasterCatalogue } from '@/lib/bmData';
 
+export const revalidate = 60; // Auto-revalidate from Cloudflare R2 every 60s
+
 export default async function HomePage() {
   const categories = await getMasterCatalogue();
 

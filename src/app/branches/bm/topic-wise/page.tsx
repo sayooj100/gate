@@ -3,6 +3,8 @@ import { ChevronLeft } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getAvailableSections } from '@/lib/bmData';
 
+export const revalidate = 60; // Auto-revalidate from Cloudflare R2 every 60s
+
 export const metadata: Metadata = {
   title: 'Topic-wise Practice | BM GATE',
   description: 'Topic-wise practice section for GATE Biomedical Engineering.',

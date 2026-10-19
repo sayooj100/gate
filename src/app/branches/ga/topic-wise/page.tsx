@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getGATopicQuestions } from '@/lib/gaData';
 import { GATopicQuestionsClient } from '@/components/GATopicQuestionsClient';
 
+export const revalidate = 60; // Auto-revalidate from Cloudflare R2 every 60s
+
 export const metadata: Metadata = {
   title: 'Topic-wise Practice — General Aptitude (GA) | GATE Preparation',
   description: 'Practice Quantitative Aptitude, Data Interpretation, and Verbal Ability for GATE.',

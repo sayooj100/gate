@@ -25,6 +25,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+export const revalidate = 60; // Auto-revalidate from Cloudflare R2 every 60s
+export const dynamicParams = true; // Automatically render newly added sections dynamically from R2
+
 export async function generateStaticParams() {
   const sections = await getAvailableSections();
   return sections.map((sec) => ({

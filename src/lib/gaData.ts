@@ -43,7 +43,8 @@ export interface GAYearQuestionsData {
   questions: GAQuestion[];
 }
 
-let gaQuestionsCache: GAQuestion[] | null = null;
+let gaQuestionsCacheEntry: { data: GAQuestion[]; timestamp: number } | null = null;
+const GA_CACHE_TTL_MS = 60 * 1000;
 
 /**
  * Dynamically scans and collects General Aptitude questions across all engineering branch
@@ -52,8 +53,9 @@ let gaQuestionsCache: GAQuestion[] | null = null;
  * Eliminates duplicate questions by question_id.
  */
 export async function collectAllGAQuestions(): Promise<GAQuestion[]> {
-  if (gaQuestionsCache) {
-    return gaQuestionsCache;
+  const now = Date.now();
+  if (gaQuestionsCacheEntry && now - gaQuestionsCacheEntry.timestamp < GA_CACHE_TTL_MS) {
+    return gaQuestionsCacheEntry.data;
   }
 
   const catalogue = await getMasterCatalogue();
@@ -87,7 +89,7 @@ export async function collectAllGAQuestions(): Promise<GAQuestion[]> {
   }
 
   const result = Array.from(collectedMap.values());
-  gaQuestionsCache = result;
+  gaQuestionsCacheEntry = { data: result, timestamp: now };
   return result;
 }
 

@@ -3,6 +3,8 @@ import { ChevronLeft } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getAvailableYears } from '@/lib/bmData';
 
+export const revalidate = 60; // Auto-revalidate from Cloudflare R2 every 60s
+
 export const metadata: Metadata = {
   title: 'Year-wise Practice | BM GATE',
   description: 'Year-wise previous question papers practice section for GATE Biomedical Engineering.',

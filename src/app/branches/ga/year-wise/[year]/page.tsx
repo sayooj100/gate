@@ -24,6 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+export const revalidate = 60; // Auto-revalidate from Cloudflare R2 every 60s
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const years = await getAvailableGAYears();
   return years.map((y) => ({

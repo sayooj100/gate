@@ -83,17 +83,25 @@ export interface BMData {
   questions?: BMQuestion[];
 }
 
-// In-memory request cache for loaded branch data
-const categoryDataCache = new Map<string, BMData>();
-let masterCatalogueCache: CategoryCatalogueItem[] | null = null;
+// In-memory TTL cache for loaded branch data (60 seconds)
+const CACHE_TTL_MS = 60 * 1000;
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const categoryDataCache = new Map<string, CacheEntry<BMData>>();
+let masterCatalogueCacheEntry: CacheEntry<CategoryCatalogueItem[]> | null = null;
 
 /**
  * Loads the master catalogue (master.json) directly from Cloudflare R2.
  * Enforces that GA (General Aptitude) always appears first.
  */
 export async function getMasterCatalogue(): Promise<CategoryCatalogueItem[]> {
-  if (masterCatalogueCache) {
-    return masterCatalogueCache;
+  const now = Date.now();
+  if (masterCatalogueCacheEntry && now - masterCatalogueCacheEntry.timestamp < CACHE_TTL_MS) {
+    return masterCatalogueCacheEntry.data;
   }
 
   try {
@@ -111,7 +119,7 @@ export async function getMasterCatalogue(): Promise<CategoryCatalogueItem[]> {
       return 0;
     });
 
-    masterCatalogueCache = sorted;
+    masterCatalogueCacheEntry = { data: sorted, timestamp: now };
     return sorted;
   } catch (error) {
     console.error('Failed to read master catalogue from R2:', error);
@@ -122,22 +130,23 @@ export async function getMasterCatalogue(): Promise<CategoryCatalogueItem[]> {
 /**
  * Reads a category's question-bank file directly from Cloudflare R2.
  * Resolves by key "questions/<CODE>.json" (e.g. questions/BM.json).
- * Fully generic — automatically works with any new branch added to R2.
+ * Automatically refetches from R2 once the cache TTL expires (60 seconds).
  */
 export async function readCategoryData(categoryCode: string): Promise<BMData | null> {
   const codeUpper = categoryCode.toUpperCase();
   const cacheKey = codeUpper;
+  const now = Date.now();
 
   const cached = categoryDataCache.get(cacheKey);
-  if (cached) {
-    return cached;
+  if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
   }
 
   try {
     const r2Key = `questions/${codeUpper}.json`;
     const data = await fetchJsonFromR2<BMData>(r2Key);
     if (data) {
-      categoryDataCache.set(cacheKey, data);
+      categoryDataCache.set(cacheKey, { data, timestamp: now });
       return data;
     }
   } catch (error) {
