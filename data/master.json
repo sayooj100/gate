@@ -1,13 +1,13 @@
 {
   "version": "1.0",
-  "updated_at": "2026-10-19T13:45:00Z",
+  "updated_at": "2026-10-19T13:50:00Z",
   "categories": [
     {
       "code": "GA",
       "name": "General Aptitude",
       "type": "shared",
       "description": "General Aptitude questions across all GATE disciplines",
-      "image": "/generalaptitude.webp",
+      "image": "/api/images/branches/GA.webp",
       "r2_image_path": "images/branches/GA.webp",
       "is_always_first": true,
       "is_aggregated": true,
@@ -18,7 +18,7 @@
       "name": "Biomedical Engineering",
       "type": "engineering",
       "description": "Biomedical Engineering GATE preparation",
-      "image": "/biomedical.webp",
+      "image": "/api/images/branches/BM.webp",
       "r2_image_path": "images/branches/BM.webp",
       "data_file": "questions/BM.json",
       "is_always_first": false,
@@ -30,7 +30,7 @@
       "name": "Aerospace Engineering",
       "type": "engineering",
       "description": "Aerospace Engineering GATE preparation",
-      "image": "/biomedical.webp",
+      "image": "/api/images/branches/AE.webp",
       "r2_image_path": "images/branches/AE.webp",
       "data_file": "questions/AE.json",
       "is_always_first": false,
