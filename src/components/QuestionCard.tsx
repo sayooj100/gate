@@ -168,7 +168,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       >
         {/* Individual Question Breadcrumbs: strictly single-row, compact */}
         <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-600 dark:text-neutral-400 pb-2 mb-3 border-b border-neutral-200 dark:border-neutral-800 overflow-x-auto no-scrollbar whitespace-nowrap">
-          <span className="text-black dark:text-white font-bold shrink-0">BM</span>
+          <span className="text-black dark:text-white font-bold shrink-0">
+            {question.paper_code || 'GATE'}
+          </span>
           <span className="shrink-0">→</span>
           <span className="px-1.5 py-0.2 rounded bg-black dark:bg-white text-white dark:text-black font-semibold text-[10px] shrink-0">
             {question.year || 'GATE'}

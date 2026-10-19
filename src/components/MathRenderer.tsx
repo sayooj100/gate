@@ -11,11 +11,13 @@ interface MathRendererProps {
  * securely using KaTeX. Falls back gracefully to raw text if syntax is irregular.
  */
 export const MathRenderer: React.FC<MathRendererProps> = ({ text, className }) => {
-  if (!text) return null;
+  if (text === null || text === undefined) return null;
+  const safeText = typeof text === 'string' ? text : String(text);
+  if (!safeText) return null;
 
   // Split by LaTeX delimiters: $$...$$, $...$, \[...\], \(...\)
   const regex = /(\$\$[\s\S]*?\$\$|\$[^$\n]+?\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g;
-  const parts = text.split(regex);
+  const parts = safeText.split(regex);
 
   return (
     <div className={className}>

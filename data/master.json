@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated_at": "2026-10-18T22:00:00Z",
+  "updated_at": "2026-10-19T13:45:00Z",
   "categories": [
     {
       "code": "GA",
@@ -21,6 +21,18 @@
       "image": "/biomedical.webp",
       "r2_image_path": "images/branches/BM.webp",
       "data_file": "questions/BM.json",
+      "is_always_first": false,
+      "is_aggregated": false,
+      "enabled": true
+    },
+    {
+      "code": "AE",
+      "name": "Aerospace Engineering",
+      "type": "engineering",
+      "description": "Aerospace Engineering GATE preparation",
+      "image": "/biomedical.webp",
+      "r2_image_path": "images/branches/AE.webp",
+      "data_file": "questions/AE.json",
       "is_always_first": false,
       "is_aggregated": false,
       "enabled": true
