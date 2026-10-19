@@ -21,7 +21,7 @@ export const QuestionImage: React.FC<QuestionImageProps> = ({
   questionId,
   displayNumber,
 }) => {
-  const [imgSrc, setImgSrc] = useState<string>(`/images/questions/${questionId}.webp`);
+  const [imgSrc, setImgSrc] = useState<string>(`/api/images/questions/${questionId}.webp`);
   const [hasFailedOnce, setHasFailedOnce] = useState<boolean>(false);
   const [isCompletelyFailed, setIsCompletelyFailed] = useState<boolean>(false);
 
