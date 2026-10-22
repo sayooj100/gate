@@ -57,13 +57,25 @@ export function trackEvent(type: EventType, metadata?: Record<string, unknown>):
   };
 
   try {
-    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-      navigator.sendBeacon('/api/analytics', JSON.stringify(payload));
+    const jsonStr = JSON.stringify(payload);
+    // Prefer sendBeacon with explicit Blob type
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const sent = navigator.sendBeacon('/api/analytics', blob);
+      if (!sent) {
+        // Fallback to fetch if sendBeacon returned false
+        fetch('/api/analytics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: jsonStr,
+          keepalive: true,
+        }).catch(() => {});
+      }
     } else {
       fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: jsonStr,
         keepalive: true,
       }).catch(() => {});
     }

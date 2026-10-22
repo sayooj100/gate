@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fetchJsonFromR2, saveJsonToR2 } from './r2Client';
 
 export interface AnalyticsCounts {
   total_sessions: number;
@@ -17,10 +18,15 @@ export interface AnalyticsStore {
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
+const R2_ANALYTICS_KEY = 'config/analytics.json';
 
 function ensureDataDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch {
+    // Read-only serverless environment fallback
   }
 }
 
@@ -37,6 +43,21 @@ const DEFAULT_STORE: AnalyticsStore = {
 };
 
 export async function getAnalyticsStore(): Promise<AnalyticsStore> {
+  // 1. Try fetching from Cloudflare R2 first
+  try {
+    const r2Data = await fetchJsonFromR2<AnalyticsStore>(R2_ANALYTICS_KEY);
+    if (r2Data && r2Data.counts && typeof r2Data.counts.total_sessions === 'number') {
+      return {
+        counts: { ...DEFAULT_STORE.counts, ...r2Data.counts },
+        unique_visitors: Array.isArray(r2Data.unique_visitors) ? r2Data.unique_visitors : [],
+        active_sessions: Array.isArray(r2Data.active_sessions) ? r2Data.active_sessions : [],
+      };
+    }
+  } catch (err) {
+    console.error('Error fetching analytics.json from R2:', err);
+  }
+
+  // 2. Fallback to local data file
   try {
     ensureDataDir();
     if (fs.existsSync(ANALYTICS_FILE)) {
@@ -49,7 +70,7 @@ export async function getAnalyticsStore(): Promise<AnalyticsStore> {
       };
     }
   } catch (error) {
-    console.error('Error reading analytics.json:', error);
+    console.error('Error reading analytics.json locally:', error);
   }
   return DEFAULT_STORE;
 }
@@ -68,8 +89,7 @@ export interface EventPayload {
   metadata?: Record<string, unknown>;
 }
 
-export async function recordAnalyticsEvent(event: EventPayload): Promise<void> {
-  ensureDataDir();
+export async function recordAnalyticsEvent(event: EventPayload): Promise<AnalyticsStore> {
   const store = await getAnalyticsStore();
 
   if (event.type === 'session_start') {
@@ -102,5 +122,21 @@ export async function recordAnalyticsEvent(event: EventPayload): Promise<void> {
     store.counts.email_submissions += 1;
   }
 
-  fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(store, null, 2), 'utf-8');
+  // 1. Save locally if filesystem allows
+  try {
+    ensureDataDir();
+    fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(store, null, 2), 'utf-8');
+  } catch (err) {
+    // Normal on serverless read-only platforms
+    console.warn('Could not write analytics locally (serverless environment):', err);
+  }
+
+  // 2. Always sync to Cloudflare R2 bucket for permanent persistence
+  try {
+    await saveJsonToR2(R2_ANALYTICS_KEY, store);
+  } catch (err) {
+    console.error('Error syncing analytics to R2:', err);
+  }
+
+  return store;
 }

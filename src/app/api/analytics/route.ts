@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { recordAnalyticsEvent, EventPayload } from '@/lib/analyticsStore';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
-    const body: EventPayload = await req.json();
+    let body: EventPayload | null = null;
+    const contentType = req.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      body = await req.json();
+    } else {
+      // Handle text/plain or blob sent via navigator.sendBeacon
+      const text = await req.text();
+      if (text) {
+        body = JSON.parse(text);
+      }
+    }
 
     if (!body || !body.type) {
       return NextResponse.json({ error: 'Event type is required' }, { status: 400 });

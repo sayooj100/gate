@@ -148,6 +148,13 @@ export function AdminDashboardClient() {
       loadDashboardData();
       loadContributionConfig();
       loadPopupConfig();
+
+      // Auto-refresh dashboard stats & reports every 10 seconds
+      const interval = setInterval(() => {
+        loadDashboardData();
+      }, 10000);
+
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated]);
 

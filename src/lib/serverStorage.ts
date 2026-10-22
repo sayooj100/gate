@@ -146,8 +146,20 @@ export async function saveContributionPopupConfig(config: ContributionPopupConfi
 
 // ---------------- Question Reports Data ----------------
 const REPORTS_FILE = path.join(DATA_DIR, 'question-reports.json');
+const R2_REPORTS_KEY = 'config/question-reports.json';
 
 export async function getQuestionReports(): Promise<QuestionReport[]> {
+  // Try fetching from Cloudflare R2 first
+  try {
+    const r2Data = await fetchJsonFromR2<QuestionReport[]>(R2_REPORTS_KEY);
+    if (Array.isArray(r2Data)) {
+      return r2Data;
+    }
+  } catch (err) {
+    console.error('Error fetching question-reports.json from R2:', err);
+  }
+
+  // Fallback to local file
   try {
     ensureDataDir();
     if (fs.existsSync(REPORTS_FILE)) {
@@ -155,13 +167,12 @@ export async function getQuestionReports(): Promise<QuestionReport[]> {
       return JSON.parse(data);
     }
   } catch (error) {
-    console.error('Error reading question-reports.json:', error);
+    console.error('Error reading question-reports.json locally:', error);
   }
   return [];
 }
 
 export async function addQuestionReport(report: Omit<QuestionReport, 'id' | 'created_at' | 'status'>): Promise<QuestionReport> {
-  ensureDataDir();
   const reports = await getQuestionReports();
   const newReport: QuestionReport = {
     ...report,
@@ -170,16 +181,45 @@ export async function addQuestionReport(report: Omit<QuestionReport, 'id' | 'cre
     status: 'pending',
   };
   reports.unshift(newReport);
-  fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2), 'utf-8');
+
+  // Save locally
+  try {
+    ensureDataDir();
+    fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error writing reports locally:', err);
+  }
+
+  // Sync to Cloudflare R2
+  try {
+    await saveJsonToR2(R2_REPORTS_KEY, reports);
+  } catch (err) {
+    console.error('Error syncing reports to R2:', err);
+  }
+
   return newReport;
 }
 
 export async function updateReportStatus(reportId: string, status: 'pending' | 'resolved'): Promise<boolean> {
-  ensureDataDir();
   const reports = await getQuestionReports();
   const target = reports.find((r) => r.id === reportId);
   if (!target) return false;
   target.status = status;
-  fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2), 'utf-8');
+
+  // Save locally
+  try {
+    ensureDataDir();
+    fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error updating report locally:', err);
+  }
+
+  // Sync to Cloudflare R2
+  try {
+    await saveJsonToR2(R2_REPORTS_KEY, reports);
+  } catch (err) {
+    console.error('Error syncing updated report to R2:', err);
+  }
+
   return true;
 }
